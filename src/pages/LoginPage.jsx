@@ -1,8 +1,10 @@
 import React, { useContext } from 'react'
 import assets from '../assets/assets'
 import { AuthContext } from '../../context/AuthContext';
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [currentState, setCurrentState] = React.useState('signUp');
   const [fullName, setFullName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -23,7 +25,7 @@ const LoginPage = () => {
     const logged = login(currentState === "signUp" ? "signup" : "login", {fullName, email, password, bio});
     if(logged) {
       //redirect to home page
-      window.location.href = "/";
+      navigate("/");
     }
   }
 

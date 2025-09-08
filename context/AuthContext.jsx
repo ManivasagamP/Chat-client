@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
         try {
             const { data } = axios.get("/api/auth/check");
-            console.log("data >>>",data);
+            // console.log("data >>>",data);
             if (data.success) {
                 setAuthUser(data.user);
                 connectSocket(data.user);
@@ -68,8 +68,8 @@ export const AuthProvider = ({ children }) => {
     const updateProfile = async(body) => {
         try {
             const { data } = await axios.put("/api/auth/update-profile", body)
-            if(data.success){
-                setAuthUser(data.user);
+            if (data.success) {
+                setAuthUser(data.userData);
                 toast.success("Profile updated successfully");
             }
         } catch (error) {
