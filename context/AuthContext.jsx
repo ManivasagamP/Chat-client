@@ -13,11 +13,17 @@ export const AuthProvider = ({ children }) => {
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState(null);
     const [socket, setSocket] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     //Check auth first
     const checkAuth = async () => {
         try {
-            const { data } = axios.get("/api/auth/check");
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+            
+            const { data } = await axios.get("/api/auth/check");
             // console.log("data >>>",data);
             if (data.success) {
                 setAuthUser(data.user);
@@ -25,6 +31,12 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (error) {
             console.log(error.message);
+            // Clear invalid token
+            localStorage.removeItem("token");
+            setToken(null);
+            axios.defaults.headers.common["token"] = null;
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -101,7 +113,7 @@ export const AuthProvider = ({ children }) => {
             axios.defaults.headers.common["token"] = token;
         }
         checkAuth()
-    }, [])
+    }, [token])
 
 
     const value = {
@@ -109,6 +121,7 @@ export const AuthProvider = ({ children }) => {
         authUser,
         onlineUsers,
         socket,
+        loading,
         login,
         logout,
         updateProfile

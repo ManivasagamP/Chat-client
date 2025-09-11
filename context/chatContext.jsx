@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import { toast } from "react-hot-toast";
 
 
 export const chatContext = createContext();
@@ -41,13 +42,17 @@ export const ChatProvider = ({ children }) => {
     //function to send message to selected user
     const sendMessage = async (messageData) => {
         try {
+            console.log("came here")
             const { data } = await axios.post(`/api/messages/send/${selectedUser._id}`,
                 messageData
             );
+            console.log(data)
             if (data.success) {
-                setMessages((prevMessages) => [...prevMessages, data.newMessage])
+                // Add message immediately for sender (since socket only goes to receiver)
+                setMessages((prevMessages) => [...prevMessages, data.message])
+                console.log("Message sent successfully")
             }else{
-                toast.error(error.message)
+                toast.error(data.message || "Failed to send message")
             }
         } catch (error) {
             toast.error(error.message)
@@ -59,11 +64,18 @@ export const ChatProvider = ({ children }) => {
         if(!socket) return;
 
         socket.on("newMessage", (newMessage)=> {
-            if(selectedUser && newMessage.senderId === selectedUser._id){
+            if(selectedUser && (newMessage.senderId === selectedUser._id || newMessage.receiverId === selectedUser._id)){
+                // This is a message in the current conversation
                 newMessage.seen = true;
-                setMessages((prevMessages) => [...prevMessages,newMessage]);
+                setMessages((prevMessages) => {
+                    // Check if message already exists to prevent duplicates
+                    const messageExists = prevMessages.some(msg => msg._id === newMessage._id);
+                    if (messageExists) return prevMessages;
+                    return [...prevMessages, newMessage];
+                });
                 axios.put(`api/messages/mark/${newMessage._id}`);
             }else{
+                // This is a message from another conversation
                 setUnseenMessages((prevUnseenMessages) => ({
                     ...prevUnseenMessages,[newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1 : 1
                 }))
@@ -85,8 +97,8 @@ export const ChatProvider = ({ children }) => {
         messages,
         users,
         selectedUser,
+        getMessages,
         getUsers,
-        setMessages,
         sendMessage,
         setSelectedUser,
         unseenMessages,
