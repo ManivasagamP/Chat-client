@@ -6,9 +6,9 @@ import { io } from "socket.io-client"
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
-function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState(null);
@@ -95,9 +95,9 @@ function AuthProvider({ children }) {
         if (!userData || socket?.connected) return;
 
         const newSocket = io(backendUrl, {
-            query: {
-                userId: userData._id,
-            }
+            query: { userId: userData._id },
+            transports: ["websocket"], // ✅ force websocket first
+            withCredentials: true
         });
 
         newSocket.connect();
@@ -134,5 +134,3 @@ function AuthProvider({ children }) {
         </AuthContext.Provider>
     )
 }
-
-export { AuthContext, AuthProvider };

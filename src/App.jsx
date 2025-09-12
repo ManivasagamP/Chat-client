@@ -6,6 +6,7 @@ import  ProfilePage  from './pages/ProfilePage.jsx'
 import { Toaster } from "react-hot-toast"
 import { useEffect, useState } from 'react'
 import { AuthContext } from "../context/AuthContext.jsx";
+import bgImage from "./assets/bgImage.svg";
 
 const App=() => {
   
@@ -13,7 +14,8 @@ const App=() => {
 
   if (loading) {
     return (
-      <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain min-h-screen flex items-center justify-center">
+      <div className="bg-contain min-h-screen flex items-center justify-center"
+        style={{ backgroundImage: `url(${bgImage})` }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
         </div>
@@ -22,7 +24,8 @@ const App=() => {
   }
 
   return (
-    <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain">
+    <div className="bg-contain"
+      style={{ backgroundImage: `url(${bgImage})`}}>
       <Toaster/>
       <Routes>
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to={"/login"} />} />
