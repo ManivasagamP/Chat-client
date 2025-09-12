@@ -6,9 +6,9 @@ import { io } from "socket.io-client"
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
 
-export const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+function AuthProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState(null);
@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (state, credentials) => {
         try {
             const { data } = await axios.post(`/api/auth/${state}`, credentials);
+            console.log("Login data >>>",data);
             if (data.success) {
                 setAuthUser(data.userData);
                 connectSocket(data.userData);
@@ -133,3 +134,5 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     )
 }
+
+export { AuthContext, AuthProvider };
